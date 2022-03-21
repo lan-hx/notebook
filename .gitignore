@@ -1,0 +1,14 @@
+# for visual studio
+/.vs
+/out
+/CMakeSettings.json
+
+# for clion
+/.idea
+/cmake-build-*
+
+# for vscode
+/build
+/.vscode
+
+/.gitlab-ci.yml

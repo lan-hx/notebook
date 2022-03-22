@@ -52,4 +52,4 @@ jobs:
         # Artifact name
         name: output
         # A file, directory or wildcard pattern that describes what to upload
-        path: ${{github.workspace}}/vcpkg/build
+        path: ${{github.workspace}}/build/notebook

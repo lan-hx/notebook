@@ -11,10 +11,10 @@ if(DEFINED VCPKG_DIR AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(CMAKE_TOOLCHAIN_FILE ${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
 endif()
 
-if(DEFINED CMAKE_TOOLCHAIN_FILE AND NOT DEFINED VCPKG_TARGET_TRIPLET)
-    set(VCPKG_TARGET_TRIPLET "x64-windows-static-md")
-    message("TARGET_TRIPLET: ${VCPKG_TARGET_TRIPLET}")
-endif()
+#if(DEFINED CMAKE_TOOLCHAIN_FILE AND NOT DEFINED VCPKG_TARGET_TRIPLET)
+#    set(VCPKG_TARGET_TRIPLET "x64-windows-static-md")
+#    message("TARGET_TRIPLET: ${VCPKG_TARGET_TRIPLET}")
+#endif()
 
 project(notebook)
 

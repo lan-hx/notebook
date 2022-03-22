@@ -3,3 +3,12 @@
 //
 
 #include "Server.h"
+
+Server *Server::instance = nullptr;
+
+Server &Server::get_ins() {
+    if (!instance) {
+        instance = new Server;
+    }
+    return *instance;
+}

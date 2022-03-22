@@ -8,7 +8,7 @@
 #include <string>
 
 /**
- * @brief client side, 负责与server进行通信，将结果转换为string
+ * @brief client side, 负责与server进行通信，将结果转换为string，并转换为相应函数调用
  * @note 注意传出的string可能包含\0,该类的函数均可能抛出异常
  * @note 单例模式
  */

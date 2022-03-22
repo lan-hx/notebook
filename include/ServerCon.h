@@ -1,18 +1,18 @@
 //
-// Created by lan on 2022/3/21.
+// Created by lan on 2022/3/22.
 //
 
-#ifndef NOTEBOOK_SRC_CLIENTCON_H_
-#define NOTEBOOK_SRC_CLIENTCON_H_
+#ifndef NOTEBOOK_SRC_SERVERCON_H_
+#define NOTEBOOK_SRC_SERVERCON_H_
 
-class ClientCon {
+class ServerCon {
 public:
     /**
      * 读取所需的设置
      */
     static void get_config();
     /**
-     * 控制台主函数，负责与用户交互
+     * 控制台主函数，负责执行服务器功能
      * @param argc 参数个数
      * @param argv 参数列表
      * @return 程序返回值
@@ -22,4 +22,4 @@ private:
     // todo: needed data
 };
 
-#endif //NOTEBOOK_SRC_CLIENTCON_H_
+#endif //NOTEBOOK_SRC_SERVERCON_H_

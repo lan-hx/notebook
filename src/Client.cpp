@@ -4,7 +4,7 @@
 
 #include "Client.h"
 
-Client *Client::instance;
+Client *Client::instance = nullptr;
 
 // todo: not done
 void Client::send(std::string data) {

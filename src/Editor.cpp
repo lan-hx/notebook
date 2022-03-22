@@ -5,11 +5,11 @@
 #include "Editor.h"
 
 // todo: not done
-int Editor::operator()(std::string &topic, std::string &content) noexcept {
-    return 0;
+Editor::State Editor::operator()(std::string &topic, std::string &content) noexcept {
+    return succeed;
 }
 
 // todo: not done
-void Editor::change_open_with(const std::string &open) noexcept{
+void Editor::change_open_with(const std::string &open) noexcept {
 
 }

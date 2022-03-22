@@ -12,13 +12,15 @@
  */
 class Editor {
 public:
+    // 主函数返回值定义
+    enum State { succeed = 0, not_changed, error };
     /**
      * 编辑器主函数，使用utf8编码
      * @param topic 文章标题
      * @param content 文章内容
      * @return 是否需要修改
      */
-    int operator()(std::string &topic, std::string &content) noexcept;
+    State operator()(std::string &topic, std::string &content) noexcept;
     /**
      * 更改默认打开方式
      * @param open 打开方式

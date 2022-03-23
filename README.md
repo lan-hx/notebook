@@ -6,7 +6,7 @@
 
 ## 1. 编译依赖库
 
-本项目默认使用vcpkg包管理工具，详见https://github.com.microsoft/vcpkg
+本项目默认使用vcpkg包管理工具，详见https://github.com/microsoft/vcpkg
 
 ① 参考文档初始化vcpkg
 

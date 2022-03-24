@@ -23,9 +23,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            triplet: x64-linux
+            triplet: 'x64-linux'
           - os: windows-latest
-            triplet: x64-windows-static-md
+            triplet: 'x64-windows-static-md'
 
     steps:
     - uses: actions/checkout@v2

@@ -21,6 +21,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+          - os: windows-latest
+            triplet: x64-windows-static-md
 
     steps:
     - uses: actions/checkout@v2
@@ -35,6 +40,7 @@ jobs:
       with:
         vcpkgJsonGlob: 'vcpkg.json'
         runVcpkgInstall: true
+        runVcpkgFormatString: '[`install`, `--recurse`, `--clean-after-build`, `--x-install-root`, `$[env.VCPKG_INSTALLED_DIR]`, `--triplet`, `$[matrix.triplet]`]'
     
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

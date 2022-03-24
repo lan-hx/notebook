@@ -12,7 +12,7 @@
 
 ② 选择合适的triplet，Windows(msvc)推荐x64-windows-static-md，Windows(MinGW)推荐x64-mingw，linux推荐x64-linux。
 
-③ ./vcpkg install sqlite3 gtest --triplet [triplet]
+③ ./vcpkg install sqlite3 gtest --triplet=[triplet]
 
 也可以使用其他工具。
 

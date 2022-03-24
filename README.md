@@ -1,6 +1,6 @@
 # Notebook
 
-![build](https://github.com/lan-hx/notebook/actions/workflows/build.yml/badge.svg)
+![build](https://github.com/lan-hx/notebook/actions/workflows/cmake.yml/badge.svg)
 
 -------
 

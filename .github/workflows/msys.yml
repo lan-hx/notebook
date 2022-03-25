@@ -26,11 +26,11 @@ jobs:
           submodules: true
     
     - uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          install: git gcc g++
-          update: true
-    
+      with:
+        msystem: MINGW64
+        install: git gcc g++
+        update: true
+
     - uses: lukka/get-cmake@latest
     
     - name: Restore artifacts, or setup vcpkg for building artifacts

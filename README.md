@@ -1,5 +1,7 @@
 # Notebook
 
+![build](https://github.com/lan-hx/notebook/actions/workflows/cmake.yml/badge.svg)
+
 -------
 
 本项目为浙江大学2022下学期OOP课程作业，请勿star/watch/pull request。
@@ -10,7 +12,7 @@
 
 ① 参考文档初始化vcpkg
 
-② 选择合适的triplet，Windows(msvc)推荐x64-windows-static-md，Windows(MinGW)推荐x64-mingw，linux推荐x64-linux。
+② 选择合适的triplet，Windows(msvc)推荐x64-windows-static-md，Windows(MinGW)推荐x64-mingw-static，linux推荐x64-linux。
 
 ③ ./vcpkg install sqlite3 gtest --triplet=[triplet]
 

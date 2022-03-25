@@ -28,10 +28,8 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: MINGW64
-        install: git mingw-w64-x86_64-gcc
+        install: git cmake mingw-w64-x86_64-gcc
         update: true
-
-    - uses: lukka/get-cmake@latest
     
     - name: Restore artifacts, or setup vcpkg for building artifacts
       uses: lukka/run-vcpkg@v10

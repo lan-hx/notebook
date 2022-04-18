@@ -19,7 +19,9 @@ class ClientTrans {
     static void del(int id);
     static std::vector<int> search(const std::string &word);
     static std::vector<int> list();
+    std::string ClientTrans::get(int id);
     static std::map<int, std::string> get_topic(const std::vector<int> ids);
+    static void logout();
 };
 
 #endif //NOTEBOOK_SRC_CLIENTTRANS_H_

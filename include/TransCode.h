@@ -46,4 +46,6 @@
 #define TYPE_NORMAL 0
 #define TYPE_DELETE 1
 
+#define VERSION 1
+
 #endif //NOTEBOOK_INCLUDE_TRANSCODE_H_

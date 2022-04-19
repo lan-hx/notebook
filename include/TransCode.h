@@ -28,7 +28,7 @@
 #define RES_LOGIN 'i'
 // g topic_length topic content_length content
 #define RES_GET 'g'
-// t (topic_length topic)*num
+// t (id topic_length topic)*num
 #define RES_GET_TOPIC 't'
 // a id
 #define RES_ADD 'a'

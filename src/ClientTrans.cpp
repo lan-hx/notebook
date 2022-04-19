@@ -5,6 +5,16 @@
 #include "ClientTrans.h"
 #include "TransCode.h"
 #include "Client.h"
+
+
+//translate int to string
+static std::string itos(int val) {
+    std::string s;
+    s.resize(4);
+    *reinterpret_cast<int*>(s.data()) = val;
+    return s;
+}
+
 //todo: not done
 int ClientTrans::add(const std::string &topic, const std::string &content) {
     std::string data;
@@ -12,6 +22,7 @@ int ClientTrans::add(const std::string &topic, const std::string &content) {
     Client::get_ins().send(data);
     return 0;
 }
+
 //todo: not done
 void ClientTrans::update(int id, const std::string &topic, const std::string &content) {
     std::string data;
@@ -32,9 +43,13 @@ std::vector<int> ClientTrans::search(const std::string &word) {
     return std::vector<int>();
 }
 //todo: not done
-std::vector<int> ClientTrans::list() {
+std::vector<int> ClientTrans::list(int type) {
     std::string data;
-    data = OP_LST+TYPE_NORMAL;
+    if(type){
+            data = OP_LST+TYPE_DELETE;
+    }else{
+            data = OP_LST+TYPE_NORMAL;
+    }
     Client::get_ins().send(data);
     return std::vector<int>();
 }
@@ -60,11 +75,4 @@ void ClientTrans::logout() {
     std::string data;
     data = OP_LOGOUT;
     Client::get_ins().send(data);
-}
-
-static std::string itos(int val) {
-    std::string s;
-    s.resize(4);
-    *reinterpret_cast<int*>(s.data()) = val;
-    return s;
 }

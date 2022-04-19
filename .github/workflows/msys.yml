@@ -1,4 +1,4 @@
-name: Build
+name: Build with MinGW
 
 on:
   push:
@@ -9,47 +9,44 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Debug
+  VCPKG_DEFAULT_TRIPLET: x64-mingw-static
+  VCPKG_DEFAULT_HOST_TRIPLET: x64-mingw-static
 
 jobs:    
   build:
-    name: ${{ matrix.os }}
+    name: MinGW-gcc
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            triplet: 'x64-linux'
-          - os: windows-latest
-            triplet: 'x64-windows-static-md'
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
       with:
           submodules: true
     
-    - uses: lukka/get-cmake@latest
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        install: mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-ninja
+        update: true
     
     - name: Restore artifacts, or setup vcpkg for building artifacts
       uses: lukka/run-vcpkg@v10
       id: runvcpkg
       with:
         vcpkgJsonGlob: 'vcpkg.json'
-        runVcpkgInstall: true
-        runVcpkgFormatString: '[`install`, `--recurse`, `--clean-after-build`, `--x-install-root`, `$[env.VCPKG_INSTALLED_DIR]`, `--triplet`, `${{matrix.triplet}}`]'
     
     - name: Configure CMake
+      shell: msys2 {0}
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_DIR=${{github.workspace}}/vcpkg
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DVCPKG_DIR=vcpkg -DVCPKG_TARGET_TRIPLET=x64-mingw-static
 
     - name: Build
+      shell: msys2 {0}
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
 #     - name: Test
 #       working-directory: ${{github.workspace}}/build
@@ -64,5 +61,5 @@ jobs:
         name: output
         # A file, directory or wildcard pattern that describes what to upload
         path: |
-          ${{github.workspace}}/build/notebook
+          ${{github.workspace}}/build/notebook.exe
           ${{github.workspace}}/build/${{env.BUILD_TYPE}}

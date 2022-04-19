@@ -1,6 +1,6 @@
 # Notebook
 
-![build](https://github.com/lan-hx/notebook/actions/workflows/build.yml/badge.svg)
+![build](https://github.com/lan-hx/notebook/actions/workflows/cmake.yml/badge.svg)
 
 -------
 
@@ -8,13 +8,13 @@
 
 ## 1. 编译依赖库
 
-本项目默认使用vcpkg包管理工具，详见https://github.com.microsoft/vcpkg
+本项目默认使用vcpkg包管理工具，详见https://github.com/microsoft/vcpkg
 
 ① 参考文档初始化vcpkg
 
 ② 选择合适的triplet，Windows(msvc)推荐x64-windows-static-md，Windows(MinGW)推荐x64-mingw-static，linux推荐x64-linux。
 
-③ ./vcpkg install sqlite3 gtest --triplet [triplet]
+③ ./vcpkg install sqlite3 gtest --triplet=[triplet]
 
 也可以使用其他工具。
 

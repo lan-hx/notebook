@@ -3,6 +3,7 @@
   "version-string": "latest",
   "dependencies": [
     "boost-beast",
-    "sqlite3"
+    "sqlite3",
+    "gtest"
   ]
 }

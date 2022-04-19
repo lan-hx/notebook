@@ -81,9 +81,11 @@ include_directories(
         "${PROJECT_SOURCE_DIR}"
 )
 
-add_executable(notebook src/main.cpp src/Client.cpp src/Server.cpp src/Editor.cpp src/ClientCon.cpp src/DB.cpp src/DBTrans.cpp src/ServerCon.cpp include/ServerCon.h src/ClientTrans.cpp)
+add_executable(notebook src/main.cpp src/Client.cpp src/Server.cpp src/Editor.cpp src/ClientCon.cpp src/DB.cpp src/DBTrans.cpp src/ServerCon.cpp src/ClientTrans.cpp)
 
-target_include_directories(notebook PRIVATE SYSTEM "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
+include_directories(SYSTEM "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
+
+add_library(nb_lib STATIC src/Client.cpp src/Server.cpp src/Editor.cpp src/DB.cpp src/DBTrans.cpp src/ClientTrans.cpp)
 
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 target_link_libraries(notebook PRIVATE unofficial::sqlite3::sqlite3)
@@ -100,3 +102,7 @@ endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# set(CMAKE_VERBOSE_MAKEFILE on)
+
+enable_testing()
+add_subdirectory(test)

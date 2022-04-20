@@ -13,7 +13,7 @@ using namespace std;
 int DBTrans::add(const std::string &topic, const std::string &content) {
     sqlite3 *db = DB::get_ins().db;
     int ret = -1;
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     try {
         if (sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr) != SQLITE_OK)
             throw exception();
@@ -41,7 +41,7 @@ int DBTrans::add(const std::string &topic, const std::string &content) {
 //todo: not done
 void DBTrans::update(int id, const std::string &topic, const std::string &content) {
     sqlite3 *db = DB::get_ins().db;
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     sqlite3_prepare_v2(db, "select id from notebook where id = ?", -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, id);
     if (sqlite3_step(stmt) != SQLITE_ROW) throw runtime_error("note not exist.");
@@ -56,7 +56,7 @@ void DBTrans::update(int id, const std::string &topic, const std::string &conten
 //todo: not done
 void DBTrans::del(int id) {
     sqlite3 *db = DB::get_ins().db;
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     sqlite3_prepare_v2(db, "delete from notebook where id = ?", -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, id);
     if (sqlite3_step(stmt) != SQLITE_DONE) throw runtime_error(sqlite3_errmsg(db));
@@ -65,7 +65,7 @@ void DBTrans::del(int id) {
 //todo: not done
 std::vector<int> DBTrans::search(const std::string &word) {
     sqlite3 *db = DB::get_ins().db;
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     std::vector<int> ret;
     sqlite3_prepare_v2(db, "select id from notebook where topic like ? or content like ?", -1, &stmt, nullptr);
     sqlite3_bind_text(stmt, 1, ("%" + word + "%").c_str(), -1, nullptr);
@@ -82,7 +82,7 @@ std::vector<int> DBTrans::search(const std::string &word) {
 std::vector<int> DBTrans::list(int type) {
     vector<int> v;
     sqlite3 *db = DB::get_ins().db;
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     sqlite3_prepare_v2(db, "select id from notebook where type = ?", -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, type);
     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -95,7 +95,7 @@ std::vector<int> DBTrans::list(int type) {
 std::map<int, std::string> DBTrans::get_topic(const std::vector<int> ids) {
     map<int, string> m;
     sqlite3 *db = DB::get_ins().db;
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     string query = "select id, topic from notebook where id = ";
     for (auto &id : ids) {
         query += to_string(id);
@@ -116,7 +116,7 @@ std::string DBTrans::get(int id) {
     sqlite3 *db = DB::get_ins().db;
     string ret;
 
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = nullptr;
     sqlite3_prepare_v2(db, "select content from notebook where id = ?", -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, id);
     if (sqlite3_step(stmt) != SQLITE_ROW) throw runtime_error("note not exist.");

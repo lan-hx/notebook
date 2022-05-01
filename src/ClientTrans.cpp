@@ -8,7 +8,7 @@
 
 
 //translate int to string
-static std::string itos(int val) {
+std::string itos(int val) {
     std::string s;
     s.resize(4);
     *reinterpret_cast<int*>(s.data()) = val;

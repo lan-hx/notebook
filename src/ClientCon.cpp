@@ -244,4 +244,5 @@ int ClientCon::operator()(int argc, char **argv) {
             std::cout<<"请输入help查看帮助信息"<<std::endl;
         }
     }
+    return 0;
 }

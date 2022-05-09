@@ -15,14 +15,15 @@
  */
 class ClientTrans {
 public:
-    static int add(const std::string &topic, const std::string &content);
-    static void update(int id, const std::string &topic, const std::string &content);
-    static void del(int id);
-    static std::vector<int> search(const std::string &word);
-    static std::vector<int> list(int type);
-    static std::string get(int id);
-    static std::map<int, std::string> get_topic(const std::vector<int> ids);
-    static void logout();
+    //static void login(std::string username, std::string password);
+    static uint32_t add(const std::string &topic, const std::string &content);
+    static void update(uint32_t id, const std::string &topic, const std::string &content);
+    static void del(uint32_t id);
+    static std::vector<uint32_t> search(const std::string &word);
+    static std::vector<uint32_t> list(int type);
+    static std::pair<std::string, std::string> get(uint32_t id);
+    static std::map<uint32_t, std::string> get_topic(const std::vector<uint32_t> ids);
+    //static void logout();
 };
 
 std::string itos(int val);

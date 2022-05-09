@@ -13,3 +13,5 @@
 
 /.gitlab-ci.yml
 /.github
+
+/vcpkg_installed

@@ -13,6 +13,17 @@
 #include "Editor.h"
 
 std::map<std::string, std::string> config;
+constexpr const char *config_file = "config_client.conf";
+
+std::string strip(const std::string &s) {
+    auto start_it = s.begin();
+    auto end_it = s.rbegin();
+    while (std::isspace(*start_it))
+        ++start_it;
+    while (std::isspace(*end_it))
+        ++end_it;
+    return std::string(start_it, end_it.base());
+}
 
 /**
 * 读取类似以下文件格式的配置文件
@@ -22,22 +33,28 @@ std::map<std::string, std::string> config;
 * open_with = notepad
 */
 void ClientCon::get_config() {
-    std::ifstream ifs("config.txt");
+    std::ifstream ifs(config_file);
     if (!ifs) {
-        std::cout << "没有找到标准配置文件,自动创建标准配置文件" << std::endl;
-        std::cout<<"请输入服务器地址:";
-        std::string address;
-        std::cin >> address;
-        std::cout<<"请输入使用的编辑器:";
-        std::string editor;
-        std::cin >> editor;
-        std::ofstream ofs("config.txt");
-        ofs << "#服务器地址" << std::endl;
-        ofs << "server.address = " << address << std::endl;
-        ofs << "#使用的编辑器" << std::endl;
-        ofs << "open_with = " << editor << std::endl;
+        std::cerr << "fatal error: 没有找到配置文件,请修改" << config_file << std::endl;
+        std::ofstream ofs(config_file);
+        ofs << "# notebook config file(client side)\n"
+               "version = 1\n"
+               "\n"
+               "# server address\n"
+               "# if you want to use a local notebook, plz use standalone\n"
+               "# eg: localhost / xxx.com / 192.168.1.1\n"
+               "# address = standalone\n"
+               "\n"
+               "# server port\n"
+               "# eg: 8080\n"
+               "# port = 8080\n"
+               "\n"
+               "# change open with\n"
+               "# eg: notepad %s\n"
+               "# eg: Code.exe -g %s\n"
+               "open_with = notepad\n";
         ofs.close();
-        ifs = std::ifstream("config.txt");
+        throw std::runtime_error("fatal error: no config file");
     }
     std::string line;
     while (std::getline(ifs, line)) {
@@ -45,12 +62,14 @@ void ClientCon::get_config() {
             continue;
         }
         //去除空字符
-        line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
-        std::stringstream ss(line);
-        std::string key;
-        std::string value;
-        std::getline(ss, key, '=');
-        std::getline(ss, value);
+        std::string key, value;
+        auto pos = line.find('=');
+        if (pos == std::string::npos) {
+            std::cerr << "parse error: " << line << std::endl;
+            continue;
+        }
+        key = strip(line.substr(0, pos));
+        value = strip(line.substr(pos + 1));
         config[key] = value;
     }
 }

@@ -20,7 +20,7 @@ public:
     static void update(uint32_t id, const std::string &topic, const std::string &content);
     static void del(uint32_t id);
     static std::vector<uint32_t> search(const std::string &word);
-    static std::vector<uint32_t> list(int type);
+    static std::vector<uint32_t> list(char type);
     static std::pair<std::string, std::string> get(uint32_t id);
     static std::map<uint32_t, std::string> get_topic(const std::vector<uint32_t> ids);
     //static void logout();

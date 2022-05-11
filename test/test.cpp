@@ -8,6 +8,7 @@
 #include "Client.h"
 #include "TransCode.h"
 #include <vector>
+#include <cstring>
 using namespace std;
 
 TEST(DB, valid) {
@@ -115,19 +116,15 @@ TEST(DB, search) {
 TEST(ClientTrans, logout) {
     auto &inst = Client::get_ins();
     ASSERT_TRUE(&inst);
-    ClientTrans::logout();
+    // ClientTrans::logout();
     string s;
     s=OP_LOGOUT;
 
 }
 TEST(ClientTrans,add) {
-    auto &inst = Client::get_ins();
-    ASSERT_TRUE(&inst);
-    ClientTrans::add("123", "12345678好好学习天天向上");
-    cout<<"retrieved Byte-code: "<<inst.get()<<endl;
-    string s;
-    s=OP_ADD+itos(strlen("123"))+"123"+itos(strlen("12345678好好学习天天向上"))+"12345678好好学习天天向上";
-    EXPECT_EQ(inst.get(),s);
+    string s = OP_ADD+itos(strlen("123"))+"123"+itos(strlen("12345678好好学习天天向上"))+"12345678好好学习天天向上";
+    const char *p = "a\x03\0\0\000123\x18\0\0\00012345678好好学习天天向上";
+    EXPECT_TRUE(memcmp(p, s.c_str(), s.size()) == 0);
 }
 
 TEST(ClientTrans,del) {
@@ -187,7 +184,7 @@ TEST (ClientTrans,get){
 TEST (ClientTrans,get_topic){
     auto &inst = Client::get_ins();
     ASSERT_TRUE(&inst);
-    ClientTrans::get_topic(vector<int>{1,2,3});
+    ClientTrans::get_topic(vector<uint32_t>{1,2,3});
     cout<<"retrieved Byte-code: "<<inst.get()<<endl;
     string s;
     s=OP_GET_TOPIC+itos(3)+itos(1)+itos(2)+itos(3);

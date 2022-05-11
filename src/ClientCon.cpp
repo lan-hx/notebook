@@ -76,7 +76,7 @@ void ClientCon::get_config() {
 
 bool is_repeat(std::string topic){
         std::map m = ClientTrans::get_topic(ClientTrans::search(topic));
-        std::map<int, std::string>::iterator it;
+        std::map<uint32_t, std::string>::iterator it;
         for(it = m.begin(); it != m.end(); it++){
             if(it->second == topic){
                 return true;
@@ -108,6 +108,7 @@ void add(){
             std::cout<<"笔记标题不能为空"<<std::endl;
             continue;
         }
+        break;
     }
     std::string content;
     Editor editor;
@@ -136,8 +137,8 @@ void update(){
             std::cout<<"笔记id不能为负数"<<std::endl;
             continue;
         }
-        //判断是否存在(后面再改)
-        if(ClientTrans::get(id)==""){
+        //判断pair是否存在(后面再改)
+        if(ClientTrans::get(id).first==""){
             std::cout<<"笔记不存在"<<std::endl;
             continue;
         }
@@ -170,11 +171,11 @@ void del(){
             continue;
         }
         //判断是否存在(后面再改)
-        if(ClientTrans::get(id)==""){
-            std::cout<<"笔记不存在"<<std::endl;
-            continue;
-        }
-        break;
+        // if(ClientTrans::get(id)==""){
+        //     std::cout<<"笔记不存在"<<std::endl;
+        //     continue;
+        // }
+        // break;
     }
     ClientTrans::del(id);
     //判断是否成功(后面再写)
@@ -184,7 +185,7 @@ void del(){
 void list(int type){
     //暂时先用服务器给的id
     std::map m = ClientTrans::get_topic(ClientTrans::list(type));
-    std::map<int, std::string>::iterator it;
+    std::map<uint32_t, std::string>::iterator it;
     for(it = m.begin(); it != m.end(); it++){
         std::cout<<"笔记id:"<<it->first<<"\t笔记标题:"<<it->second<<std::endl;
     }
@@ -201,7 +202,7 @@ void search(){
         }
     }
     std::map m = ClientTrans::get_topic(ClientTrans::search(topic));
-    std::map<int, std::string>::iterator it;
+    std::map<uint32_t, std::string>::iterator it;
     std::cout<<"查询结果如下:"<<std::endl;
     std::cout<<"共查询到"<<m.size()<<"条笔记"<<std::endl;
     for(it = m.begin(); it != m.end(); it++){
@@ -210,7 +211,7 @@ void search(){
 }
 //logout操作
 void logout(){
-    ClientTrans::logout();
+    // ClientTrans::logout();
     //判断是否成功(后面再写)
     std::cout<<"退出成功"<<std::endl;
 }
@@ -255,7 +256,7 @@ int ClientCon::operator()(int argc, char **argv) {
         }else if(command.compare("list_del") == 0){
             list(1);
         }else if(command.compare("logout") == 0){
-            ClientTrans::logout();
+            // ClientTrans::logout();
         }else if(command.compare("exit") == 0){
             break;
         }else{

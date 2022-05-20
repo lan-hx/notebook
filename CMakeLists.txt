@@ -28,9 +28,9 @@ set(SLOW "slow")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wmisleading-indentation -Wunused -Wconversion -Wshadow -Wcast-qual -Wcast-align -Wunreachable-code -fno-exceptions -fno-rtti -march=native")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fanalyzer")
-    endif()
+#    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 10.0)
+#        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fanalyzer")
+#    endif()
     if(DEFINED SLOW)
         string(REGEX REPLACE " -fno-exceptions" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
         # string(REGEX REPLACE " -fno-rtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
@@ -81,14 +81,22 @@ include_directories(
         "${PROJECT_SOURCE_DIR}"
 )
 
-add_executable(notebook src/main.cpp src/Client.cpp src/Server.cpp src/Editor.cpp src/ClientCon.cpp src/DB.cpp src/DBTrans.cpp src/ServerCon.cpp src/ClientTrans.cpp)
-
 include_directories(SYSTEM "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 
-add_library(nb_lib STATIC src/Client.cpp src/Server.cpp src/Editor.cpp src/DB.cpp src/DBTrans.cpp src/ClientTrans.cpp)
+add_executable(notebook src/main.cpp)
+
+add_library(nb_lib STATIC src/Editor.cpp src/ClientTrans.cpp src/ClientTrans.cpp src/ClientCon.cpp src/ServerCon.cpp)
+add_library(nb_lib_db STATIC src/DB.cpp src/DBTrans.cpp)
+add_library(nb_lib_net STATIC src/Client.cpp src/Server.cpp)
+
+if(WIN32 AND CMAKE_COMPILER_IS_GNUCC)
+    target_link_libraries(nb_lib_net PRIVATE ws2_32)
+endif()
+
+#target_precompile_headers(nb_lib_net PRIVATE [["include/nb_net.h"]])
 
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
-target_link_libraries(notebook PRIVATE unofficial::sqlite3::sqlite3)
+target_link_libraries(notebook PRIVATE nb_lib nb_lib_db nb_lib_net unofficial::sqlite3::sqlite3)
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS REQUIRED)
@@ -97,8 +105,11 @@ if (Boost_FOUND)
     message("boost include: ${Boost_INCLUDE_DIRS}")
     message("boost lib: ${Boost_LIBRARIES}")
     #target_include_directories(learningcpp PRIVATE ${Boost_INCLUDE_DIRS})
-    target_link_libraries(notebook PRIVATE)
+    target_link_libraries(notebook PRIVATE Boost::boost)
 endif ()
+
+find_package(Threads REQUIRED)
+target_link_libraries(nb_lib_net PUBLIC Threads::Threads)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

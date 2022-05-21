@@ -6,6 +6,7 @@
 #include "TransCode.h"
 #include "Client.h"
 #include <cassert>
+#include <cstring>
 using namespace std;
 
 #define ASSERT(expr, message) assert((expr) && (message))

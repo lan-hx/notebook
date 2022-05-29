@@ -34,6 +34,7 @@ public:
     inline bool is_open() const noexcept { return db; }
     bool validate() noexcept;
     DB(const DB &d) = delete;
+    DB &operator=(const DB& db) = delete;
     sqlite3 *db = nullptr;
 private:
     static std::string path;

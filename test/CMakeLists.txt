@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
-add_executable(tests ../test/test.cpp net_test.cpp)
+FILE(GLOB_RECURSE NOTE_TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/**test.cpp)
+message("Found tests: ${NOTE_TEST_SOURCES}")
+add_executable(tests ${NOTE_TEST_SOURCES})
 
 #add_dependencies(tests nb_lib)
 

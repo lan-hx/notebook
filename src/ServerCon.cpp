@@ -7,12 +7,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <DBTrans.h>
 #include <map>
 
 using namespace std;
 
 std::map<std::string, std::string> config;
-constexpr const char *config_file = "config_client.conf";
+constexpr const char *config_file = "config_server.conf";
 std::string strip(const std::string &s);
 
 //todo: not done
@@ -25,17 +26,12 @@ void ServerCon::get_config() {
                 "version = 1\n"
                 "\n"
                 "# server address\n"
-                "# eg: localhost / xxx.com / 192.168.1.1\n"
-                "# address = localhost\n"
+                "# eg: 0.0.0.0\n"
+                "# address = 0.0.0.0\n"
                 "\n"
                 "# server port\n"
                 "# eg: 8080\n"
-                "# port = 8080\n"
-                "\n"
-                "# change open with\n"
-                "# eg: notepad %s\n"
-                "# eg: Code.exe -g %s\n"
-                "open_with = notepad\n";
+                "# port = 8080\n";
         ofs.close();
         throw std::runtime_error("fatal error: no config file");
     }
@@ -56,11 +52,8 @@ void ServerCon::get_config() {
 
 //todo: not done
 int ServerCon::operator()(int argc, char **argv) {
-    auto echo_func = [](const string &s) {
-        return s;
-    };
     auto &sinst = Server::get_ins();
     unsigned short port = stoul(config["port"]);
-    sinst.start_server(config["address"], port, echo_func);
+    sinst.start_server(config["address"], port, DBTrans::translate);
     return 0;
 }

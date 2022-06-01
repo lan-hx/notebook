@@ -11,13 +11,6 @@ using namespace std;
 
 #define ASSERT(expr, message) assert((expr) && (message))
 
-//translate int to string
-std::string itos(int val) {
-    std::string s;
-    s.resize(4);
-    *reinterpret_cast<int *>(s.data()) = val;
-    return s;
-}
 
 string _add_send(const std::string &topic, const std::string &content) {
     string str;

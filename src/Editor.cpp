@@ -5,33 +5,37 @@
 #include "Editor.h"
 #include <fstream>
 #include <string>
+#include <map>
 
 // todo: not done
 Editor::State Editor::operator()(std::string &topic, std::string &content) noexcept {
-    open_with = "notepad";
-    std::ofstream ofs("temp.txt");
+    std::ofstream ofs("note.txt");
     ofs << topic << "\n" << content;
     ofs << content;
     ofs.close();
-    std::string cmd = open_with + " temp.txt";
+    std::string cmd = open_with + " note.txt";
     if (system(cmd.c_str()) != 0) {
         return State::error;
     }
-    std::ifstream ifs("temp.txt");
+    std::ifstream ifs("note.txt");
     if (!ifs) {
         return State::error;
     }
-    std::string new_topic, new_content;
+    std::string new_topic, new_content,temp;
     std::getline(ifs, new_topic);
-    while (std::getline(ifs, new_content)) {
-        new_content.append("\n");
+    while (std::getline(ifs, temp)) {
+        new_content += temp + "\n";
+        if(ifs.eof()) {
+            break;
+        }
     }
     if (new_topic == topic && new_content == content) {
         return State::not_changed;
     }
     topic = new_topic;
     content = new_content;
-    system("rm temp.txt");
+    ifs.close();
+    system("del note.txt");
     return State::succeed;
 }
 

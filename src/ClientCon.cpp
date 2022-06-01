@@ -8,8 +8,10 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include "Client.h"
 #include "ClientCon.h"
 #include "ClientTrans.h"
+#include "macro.h"
 #include "Editor.h"
 
 std::map<std::string, std::string> config;
@@ -44,10 +46,12 @@ void ClientCon::get_config() {
                "# if you want to use a local notebook, plz use standalone\n"
                "# eg: localhost / xxx.com / 192.168.1.1\n"
                "# address = standalone\n"
+               "address = standalone\n"
                "\n"
                "# server port\n"
                "# eg: 8080\n"
                "# port = 8080\n"
+               "port = 8080"
                "\n"
                "# change open with\n"
                "# eg: notepad %s\n"
@@ -74,17 +78,6 @@ void ClientCon::get_config() {
     }
 }
 
-bool is_repeat(std::string topic){
-        std::map m = ClientTrans::get_topic(ClientTrans::search(topic));
-        std::map<uint32_t, std::string>::iterator it;
-        for(it = m.begin(); it != m.end(); it++){
-            if(it->second == topic){
-                return true;
-            }
-        }
-        return false;
-}
-
 //输出帮助信息
 void help(){
     std::cout << "请使用如下格式输入命令: " << " <command> [args...]" << std::endl;
@@ -101,29 +94,32 @@ void help(){
 //add操作
 void add(){
     std::cout<<"请输入笔记标题:"<<std::endl;
-    std::string topic;
-    while(true){
-        getline(std::cin,topic);
-        if(topic.size()==0){
-            std::cout<<"笔记标题不能为空"<<std::endl;
-            continue;
-        }
-        break;
-    }
+    std::string topic; 
+    // while(true){
+    //     getline(std::cin,topic);
+    //     if(topic.size()==0){
+    //         std::cout<<"笔记标题不能为空"<<std::endl;
+    //         continue;
+    //     }
+    //     break;
+    // }
+    getline(std::cin,topic);
     std::string content;
     Editor editor;
+    editor.change_open_with(config["open_with"]);
     editor(topic, content);
-    //判断是否有重复标题
-    while(is_repeat(topic)){
-        std::cout<<"该笔记已存在"<<std::endl;
-        std::cout<<"请重新输入笔记标题:"<<std::endl;
-        editor(topic, content);
-    }
     int id = ClientTrans::add(topic, content);
-    if (id == -1) {
-        std::cout << "添加失败" << std::endl;
-    } else {
-        std::cout << "添加成功,笔记id为:" << id << std::endl;
+    auto &inst = Client::get_ins();
+    std::string res = inst.get();
+    if(res.size()!=0){
+        if (res[0] == 'e') {
+            std::string err;
+            err.resize(READ_UINT32(res.c_str()+2));
+            memcpy(err.data(), res.c_str()+6, err.size());
+            std::cout<<err<<std::endl;
+        } else {
+            std::cout << "添加成功,笔记id为:" << id << std::endl;
+        }
     }
 }
 //update操作
@@ -133,31 +129,49 @@ void update(){
     int id;
     while(true){
         std::cin>>id;
-        if(id<0){
-            std::cout<<"笔记id不能为负数"<<std::endl;
+        if(std::cin.fail()){
+            std::cout<<"输入格式错误,请重新输入"<<std::endl;
+            std::cin.clear();
+            std::cin.ignore(1024,'\n');
             continue;
         }
-        //判断pair是否存在(后面再改)
-        if(ClientTrans::get(id).first==""){
-            std::cout<<"笔记不存在"<<std::endl;
+        if(id<=0){
+            std::cout<<"笔记id不能小于0"<<std::endl;
             continue;
         }
         break;
     }
     std::string topic;
     std::string content;
-    Editor editor;
-    //获取笔记内容(后面再改)
-    editor(topic, content);
-    //判断是否有重复标题
-    while(is_repeat(topic)){
-        std::cout<<"该笔记已存在"<<std::endl;
-        std::cout<<"请重新输入笔记标题:"<<std::endl;
-        editor(topic, content);
+    auto get_res = ClientTrans::get(id);
+    auto &inst = Client::get_ins();
+    std::string res = inst.get();
+    if(res.size()!=0){
+        if (res[0] == 'e') {
+            std::string err;
+            err.resize(READ_UINT32(res.c_str()+2));
+            memcpy(err.data(), res.c_str()+6, err.size());
+            std::cout<<err<<std::endl;
+        } else {
+            topic = get_res.first;
+            content = get_res.second;
+            Editor editor;
+            editor.change_open_with(config["open_with"]);
+            editor(topic, content);
+            ClientTrans::update(id, topic, content);
+            res = inst.get();
+            if(res.size()!=0){
+                if (res[0] == 'e') {
+                    std::string err;
+                    err.resize(READ_UINT32(res.c_str()+2));
+                    memcpy(err.data(), res.c_str()+6, err.size());
+                    std::cout<<err<<std::endl;
+                } else {
+                    std::cout << "更新成功" << std::endl;
+                }
+            }
+        }
     }
-    ClientTrans::update(id, topic, content);
-    //判断是否成功(后面再写)
-    std::cout<<"更新成功"<<std::endl;
 }
 //del操作
 void del(){
@@ -166,67 +180,108 @@ void del(){
     int id;
     while(true){
         std::cin>>id;
-        if(id<0){
-            std::cout<<"笔记id不能为负数"<<std::endl;
+        if(std::cin.fail()){
+            std::cout<<"输入格式错误,请重新输入"<<std::endl;
+            std::cin.clear();
+            std::cin.ignore(1024,'\n');
             continue;
         }
-        //判断是否存在(后面再改)
-        // if(ClientTrans::get(id)==""){
-        //     std::cout<<"笔记不存在"<<std::endl;
-        //     continue;
-        // }
-        // break;
+        if(id<=0){
+            std::cout<<"笔记id不能小于0"<<std::endl;
+            continue;
+        }
+        break;
     }
     ClientTrans::del(id);
-    //判断是否成功(后面再写)
-    std::cout<<"删除成功"<<std::endl;
+    auto &inst = Client::get_ins();
+    std::string res = inst.get();
+    if(res.size()!=0){
+        if (res[0] == 'e') {
+            std::string err;
+            err.resize(READ_UINT32(res.c_str()+2));
+            memcpy(err.data(), res.c_str()+6, err.size());
+            std::cout<<err<<std::endl;
+        } else {
+            std::cout << "删除成功" << std::endl;
+        }
+    }
 }
 //list操作
-void list(int type){
+void list(char type){
     //暂时先用服务器给的id
-    std::map m = ClientTrans::get_topic(ClientTrans::list(type));
+    auto m = ClientTrans::get_topic(ClientTrans::list(type));
     std::map<uint32_t, std::string>::iterator it;
-    for(it = m.begin(); it != m.end(); it++){
-        std::cout<<"笔记id:"<<it->first<<"\t笔记标题:"<<it->second<<std::endl;
+    auto &inst = Client::get_ins();
+    std::string res = inst.get();
+    if(res.size()!=0){
+        if (res[0] == 'e') {
+            std::string err;
+            err.resize(READ_UINT32(res.c_str()+2));
+            memcpy(err.data(), res.c_str()+6, err.size());
+            std::cout<<err<<std::endl;
+        } else {
+            std::cout<<"\t笔记id\t笔记标题"<<std::endl;
+            for(it = m.begin(); it != m.end(); it++){
+                std::cout<<"\t"<<it->first<<"\t"<<it->second<<std::endl;
+            }
+        }
     }
 }
 //search操作
 void search(){
-    std::cout<<"请输入笔记标题:"<<std::endl;
+    std::cout<<"请输入要查找的笔记标题:"<<std::endl;
     std::string topic;
     while(true){
         getline(std::cin,topic);
         if(topic.size()==0){
-            std::cout<<"笔记标题不能为空"<<std::endl;
+            std::cout<<"查找内容不能为空"<<std::endl;
             continue;
         }
     }
-    std::map m = ClientTrans::get_topic(ClientTrans::search(topic));
+    auto m = ClientTrans::get_topic(ClientTrans::search(topic));
     std::map<uint32_t, std::string>::iterator it;
-    std::cout<<"查询结果如下:"<<std::endl;
-    std::cout<<"共查询到"<<m.size()<<"条笔记"<<std::endl;
-    for(it = m.begin(); it != m.end(); it++){
-        std::cout<<"笔记id:"<<it->first<<"\t笔记标题:"<<it->second<<std::endl;
+    auto &inst = Client::get_ins();
+    std::string res = inst.get();
+    if(res.size()!=0){
+        if (res[0] == 'e') {
+            std::string err;
+            err.resize(READ_UINT32(res.c_str()+2));
+            memcpy(err.data(), res.c_str()+6, err.size());
+            std::cout<<err<<std::endl;
+        } else {
+            std::cout<<"查询结果如下:"<<std::endl;
+            std::cout<<"共查询到"<<m.size()<<"条笔记"<<std::endl;
+            std::cout<<"\t笔记id\t笔记标题"<<std::endl;
+            for(it = m.begin(); it != m.end(); it++){
+                std::cout<<"\t"<<it->first<<"\t"<<it->second<<std::endl;
+            }
+        }
     }
 }
 //logout操作
 void logout(){
     // ClientTrans::logout();
-    //判断是否成功(后面再写)
     std::cout<<"退出成功"<<std::endl;
 }
 
 //交互主程序
 int ClientCon::operator()(int argc, char **argv) {
+    auto &inst = Client::get_ins();
+    if(config["port"].empty()){
+        std::cout<<"未定义端口号，请修改配置文件"<<std::endl;
+        return -1;
+    }
+    int port = stoi(config["port"]);
+    inst.set(config["host"], port);
     std::cout << "欢迎使用笔记本系统" << std::endl;
-    std::cout << "请输入您的用户名(新用户将自动创建):";
-    std::string username;
-    std::cin >> username;
-    std::cout << "请输入您的密码:";
-    std::string password;
-    std::cin >> password;
+    // std::cout << "请输入您的用户名(新用户将自动创建):";
+    // std::string username;
+    // std::cin >> username;
+    // std::cout << "请输入您的密码:";
+    // std::string password;
+    // std::cin >> password;
     // ClientTrans::login(username, password);
-    //登录部分不太会
+    //登录部分
     std::cout<<"您可以通过输入特定的命令来操作笔记本系统"<<std::endl;
     std::cout<<"支持的命令有:"<<std::endl;
     std::cout<<"add:添加笔记"<<std::endl;
@@ -241,6 +296,7 @@ int ClientCon::operator()(int argc, char **argv) {
     std::string command;
     std::cin >> command;
     while (command.compare("exit") != 0){
+        getchar();
         if(command.compare("help") == 0){
             help();
         }else if(command.compare("add") == 0){
@@ -259,9 +315,11 @@ int ClientCon::operator()(int argc, char **argv) {
             // ClientTrans::logout();
         }else if(command.compare("exit") == 0){
             break;
+        }else if(command.compare("help") == 0){
+            help();
         }else{
             std::cout<<"您输入的命令不存在"<<std::endl;
-            std::cout<<"请输入help查看帮助信息"<<std::endl;
+            std::cout<<"请输入help查看有效命令"<<std::endl;
         }
     }
     return 0;

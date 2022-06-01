@@ -26,6 +26,5 @@ public:
     //static void logout();
 };
 
-std::string itos(int val);
 
 #endif //NOTEBOOK_SRC_CLIENTTRANS_H_

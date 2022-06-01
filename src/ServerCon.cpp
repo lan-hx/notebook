@@ -4,6 +4,7 @@
 
 #include "ServerCon.h"
 #include "Server.h"
+#include "DB.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -12,27 +13,15 @@
 
 using namespace std;
 
-std::map<std::string, std::string> config;
-constexpr const char *config_file = "config_server.conf";
+std::map<std::string, std::string> ServerCon::config;
+auto &sconfig = ServerCon::config;
+constexpr const char *config_file = "config.conf";
 std::string strip(const std::string &s);
 
 //todo: not done
 void ServerCon::get_config() {
     std::ifstream ifs(config_file);
     if (!ifs) {
-        std::cerr << "fatal error: 没有找到配置文件,请修改" << config_file << std::endl;
-        std::ofstream ofs(config_file);
-        ofs << "# notebook config file(server side)\n"
-                "version = 1\n"
-                "\n"
-                "# server address\n"
-                "# eg: 0.0.0.0\n"
-                "# address = 0.0.0.0\n"
-                "\n"
-                "# server port\n"
-                "# eg: 8080\n"
-                "# port = 8080\n";
-        ofs.close();
         throw std::runtime_error("fatal error: no config file");
     }
     std::string line;
@@ -46,14 +35,21 @@ void ServerCon::get_config() {
         }
         auto key = strip(line.substr(0, pos));
         auto value = strip(line.substr(pos + 1));
-        config[key] = value;
+        sconfig[key] = value;
     }
 }
 
 //todo: not done
 int ServerCon::operator()(int argc, char **argv) {
+    get_config();
+    DB::change_db_path(sconfig["db_path"]);
+    auto &db = DB::get_ins();
+    db.open();
+    if(!db.validate()) {
+        cerr<<"fatal error: 数据库结构错误"<<endl;
+    }
     auto &sinst = Server::get_ins();
-    unsigned short port = stoul(config["port"]);
-    sinst.start_server(config["address"], port, DBTrans::translate);
+    unsigned short port = stoul(sconfig["port"]);
+    sinst.start_server(sconfig["listen_address"], port, DBTrans::translate);
     return 0;
 }

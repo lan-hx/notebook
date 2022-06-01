@@ -5,6 +5,7 @@
 #ifndef NOTEBOOK_SRC_CLIENTCON_H_
 #define NOTEBOOK_SRC_CLIENTCON_H_
 
+#include <map>
 class ClientCon {
 public:
     /**
@@ -18,8 +19,8 @@ public:
      * @return 程序返回值
      */
     int operator()(int argc, char **argv);
-private:
     // todo: needed data
+    static std::map<std::string, std::string> config;
 };
 
 #endif //NOTEBOOK_SRC_CLIENTCON_H_

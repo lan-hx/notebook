@@ -14,8 +14,9 @@
 #include "macro.h"
 #include "Editor.h"
 
-std::map<std::string, std::string> config;
-constexpr const char *config_file = "config_client.conf";
+std::map<std::string, std::string> ClientCon::config;
+auto &cconfig = ClientCon::config;
+constexpr const char *config_file = "config.conf";
 
 std::string strip(const std::string &s) {
     auto start_it = s.begin();
@@ -39,24 +40,35 @@ void ClientCon::get_config() {
     if (!ifs) {
         std::cerr << "fatal error: 没有找到配置文件,请修改" << config_file << std::endl;
         std::ofstream ofs(config_file);
-        ofs << "# notebook config file(client side)\n"
+        ofs << "# notebook config file\n"
                "version = 1\n"
                "\n"
+               "# client or server\n"
+               "type = client\n"
+               "\n"
                "# server address\n"
-               "# if you want to use a local notebook, plz use standalone\n"
+               "# if you want to use a local notebook, plz use localhost\n"
                "# eg: localhost / xxx.com / 192.168.1.1\n"
-               "# address = standalone\n"
-               "address = standalone\n"
+               "address = localhost\n"
+               "\n"
+               "# listen address(server)\n"
+               "# eg: 0.0.0.0\n"
+               "listen_address = 0.0.0.0\n"
                "\n"
                "# server port\n"
                "# eg: 8080\n"
-               "# port = 8080\n"
-               "port = 8080"
+               "port = 8080\n"
                "\n"
                "# change open with\n"
                "# eg: notepad %s\n"
                "# eg: Code.exe -g %s\n"
-               "open_with = notepad\n";
+               "open_with = notepad\n"
+               "\n"
+               "# change database filename\n"
+               "# eg: note.db\n"
+               "db_name = note.db\n"
+               "\n"
+               ;
         ofs.close();
         throw std::runtime_error("fatal error: no config file");
     }
@@ -106,7 +118,7 @@ void add(){
     getline(std::cin,topic);
     std::string content;
     Editor editor;
-    editor.change_open_with(config["open_with"]);
+    editor.change_open_with(cconfig["open_with"]);
     editor(topic, content);
     int id = ClientTrans::add(topic, content);
     auto &inst = Client::get_ins();
@@ -156,7 +168,7 @@ void update(){
             topic = get_res.first;
             content = get_res.second;
             Editor editor;
-            editor.change_open_with(config["open_with"]);
+            editor.change_open_with(cconfig["open_with"]);
             editor(topic, content);
             ClientTrans::update(id, topic, content);
             res = inst.get();
@@ -266,13 +278,12 @@ void logout(){
 
 //交互主程序
 int ClientCon::operator()(int argc, char **argv) {
-    auto &inst = Client::get_ins();
     if(config["port"].empty()){
         std::cout<<"未定义端口号，请修改配置文件"<<std::endl;
         return -1;
     }
     int port = stoi(config["port"]);
-    inst.set(config["host"], port);
+    Client::set(config["host"], port);
     std::cout << "欢迎使用笔记本系统" << std::endl;
     // std::cout << "请输入您的用户名(新用户将自动创建):";
     // std::string username;

@@ -92,12 +92,13 @@ void ClientCon::get_config() {
 
 //输出帮助信息
 void help(){
-    std::cout << "请使用如下格式输入命令: " << " <command> [args...]" << std::endl;
-    std::cout <<"添加笔记: add <topic>" << std::endl;
-    std::cout << "更新笔记: update <topic>" << std::endl;
-    std::cout << "删除笔记: del <id>" << std::endl;
+    std::cout << "请使用如下支持的命令 " << std::endl;
+    std::cout <<"添加笔记: add " << std::endl;
+    std::cout << "更新笔记: update " << std::endl;
+    std::cout << "删除笔记: del " << std::endl;
     std::cout << "查看所有笔记: list" << std::endl;
     std::cout << "查看已删除的笔记: list_del" << std::endl;
+    std::cout << "搜索笔记: search " << std::endl;
     std::cout << "退出登录: logout" << std::endl;
     std::cout << "查看帮助信息: help" << std::endl;
     std::cout << "退出系统: exit" << std::endl;
@@ -136,8 +137,7 @@ void add(){
 }
 //update操作
 void update(){
-    std::cout<<"请输入笔记id:"<<std::endl;
-    std::cout<<"您可以通过list或者通过search获取笔记id"<<std::endl;
+    std::cout<<"请输入笔记id(您可以通过list或者通过search获取笔记id):";
     int id;
     while(true){
         std::cin>>id;
@@ -147,8 +147,8 @@ void update(){
             std::cin.ignore(1024,'\n');
             continue;
         }
-        if(id<=0){
-            std::cout<<"笔记id不能小于0"<<std::endl;
+        if(id<0){
+            std::cout<<"笔记id不能小于0,请重新输入";
             continue;
         }
         break;
@@ -187,8 +187,7 @@ void update(){
 }
 //del操作
 void del(){
-    std::cout<<"请输入笔记id:"<<std::endl;
-    std::cout<<"您可以通过list或者通过search获取笔记id"<<std::endl;
+    std::cout<<"请输入笔记id(您可以通过list或者通过search获取笔记id):"<<std::endl;
     int id;
     while(true){
         std::cin>>id;
@@ -225,29 +224,31 @@ void list(char type){
     std::map<uint32_t, std::string>::iterator it;
     auto &inst = Client::get_ins();
     std::string res = inst.get();
-    if(res.size()!=0){
-        if (res[0] == 'e') {
-            std::string err;
-            err.resize(READ_UINT32(res.c_str()+2));
-            memcpy(err.data(), res.c_str()+6, err.size());
-            std::cout<<err<<std::endl;
-        } else {
+    // if(res.size()!=0){
+    //     if (res[0] == 'e') {
+    //         std::string err;
+    //         err.resize(READ_UINT32(res.c_str()+2));
+    //         memcpy(err.data(), res.c_str()+6, err.size());
+    //         std::cout<<err<<std::endl;
+    //     } else {
             std::cout<<"\t笔记id\t笔记标题"<<std::endl;
             for(it = m.begin(); it != m.end(); it++){
                 std::cout<<"\t"<<it->first<<"\t"<<it->second<<std::endl;
             }
-        }
-    }
+    //     }
+    // }
 }
 //search操作
 void search(){
-    std::cout<<"请输入要查找的笔记标题:"<<std::endl;
+    std::cout<<"请输入要查找的笔记标题:";
     std::string topic;
     while(true){
         getline(std::cin,topic);
         if(topic.size()==0){
-            std::cout<<"查找内容不能为空"<<std::endl;
+            std::cout<<"查找内容不能为空,请重新输入:";
             continue;
+        }else{
+            break;
         }
     }
     auto m = ClientTrans::get_topic(ClientTrans::search(topic));
@@ -304,6 +305,7 @@ int ClientCon::operator()(int argc, char **argv) {
     std::cout<<"logout:退出登录"<<std::endl;
     std::cout<<"help:查看帮助信息"<<std::endl;
     std::cout<<"exit:退出系统"<<std::endl;
+    std::cout<<"请输入命令:";
     std::string command;
     std::cin >> command;
     while (command.compare("exit") != 0){
@@ -332,6 +334,8 @@ int ClientCon::operator()(int argc, char **argv) {
             std::cout<<"您输入的命令不存在"<<std::endl;
             std::cout<<"请输入help查看有效命令"<<std::endl;
         }
+        std::cout<<"请输入命令:";
+        std::cin >> command;
     }
     return 0;
 }

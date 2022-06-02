@@ -224,19 +224,19 @@ void list(char type){
     std::map<uint32_t, std::string>::iterator it;
     auto &inst = Client::get_ins();
     std::string res = inst.get();
-    // if(res.size()!=0){
-    //     if (res[0] == 'e') {
-    //         std::string err;
-    //         err.resize(READ_UINT32(res.c_str()+2));
-    //         memcpy(err.data(), res.c_str()+6, err.size());
-    //         std::cout<<err<<std::endl;
-    //     } else {
+    if(res.size()!=0){
+        if (res[0] == 'e') {
+            std::string err;
+            err.resize(READ_UINT32(res.c_str()+2));
+            memcpy(err.data(), res.c_str()+6, err.size());
+            std::cout<<err<<std::endl;
+        } else {
             std::cout<<"\t笔记id\t笔记标题"<<std::endl;
             for(it = m.begin(); it != m.end(); it++){
                 std::cout<<"\t"<<it->first<<"\t"<<it->second<<std::endl;
             }
-    //     }
-    // }
+        }
+    }
 }
 //search操作
 void search(){

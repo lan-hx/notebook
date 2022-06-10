@@ -197,7 +197,7 @@ void del(){
             std::cin.ignore(1024,'\n');
             continue;
         }
-        if(id<=0){
+        if(id<0){
             std::cout<<"笔记id不能小于0"<<std::endl;
             continue;
         }
@@ -218,7 +218,7 @@ void del(){
     }
 }
 //list操作
-void list(char type){
+void list(int type){
     //暂时先用服务器给的id
     auto m = ClientTrans::get_topic(ClientTrans::list(type));
     std::map<uint32_t, std::string>::iterator it;

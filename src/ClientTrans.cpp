@@ -110,11 +110,11 @@ vector<uint32_t> ClientTrans::search(const std::string &word) {
     return _search_recv(data);
 }
 
-string _list_send (char type) {
+string _list_send (int type) {
     string str;
-    str.resize(2);
+    str.resize(5);
     str[0] = OP_LST;
-    str[1] = type;
+    *reinterpret_cast<uint32_t *>(str.data()+1) = type;
     return str;
 }
 vector<uint32_t> _list_recv(const string &data) {
@@ -129,7 +129,7 @@ vector<uint32_t> _list_recv(const string &data) {
     return ids;
 }
 //todo: not done
-std::vector<uint32_t> ClientTrans::list(char type) {
+std::vector<uint32_t> ClientTrans::list(int type) {
     auto &inst = Client::get_ins();
     inst.send(_list_send(type));
     return _list_recv(inst.get());
@@ -174,10 +174,11 @@ map <uint32_t, string> _get_topic_recv(const string &data) {
     map <uint32_t, string> topics;
     uint32_t id = 0;
     uint32_t topic_len = 0;
-    for (size_t i = 1; i < data.size(); i += 8 + topic_len) {
+    uint32_t num = *reinterpret_cast<const uint32_t *>(data.data()+1);
+    string topic;
+    for (size_t i = 5,n = 0; n < num; i += 8 + topic_len,n++) {
         id = *reinterpret_cast<const uint32_t *>(data.data() + i);
         topic_len = *reinterpret_cast<const uint32_t *>(data.data() + i + 4);
-        string topic;
         topic.resize(topic_len);
         memcpy(topic.data(), data.data() + i + 8, topic_len);
         topics[id] = topic;

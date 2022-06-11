@@ -95,8 +95,8 @@ vector<uint32_t> _search_recv(const string &data) {
     vector<uint32_t> ids;
     uint32_t num = *reinterpret_cast<const uint32_t *>(data.data()+1);
     uint32_t id = 0;
-    for (size_t i = 5; i < num; i += 4) {
-        id = *reinterpret_cast<const uint32_t *>(data.data() + i);
+    for (size_t i = 0; i < num; i++) {
+        id = *reinterpret_cast<const uint32_t *>(data.data() + 5 + 4 * i);
         ids.push_back(id);
     }
     return ids;
@@ -122,8 +122,8 @@ vector<uint32_t> _list_recv(const string &data) {
     vector<uint32_t> ids;
     uint32_t num = *reinterpret_cast<const uint32_t *>(data.data()+1);
     uint32_t id = 0;
-    for (size_t i = 5; i < num; i += 4) {
-        id = *reinterpret_cast<const uint32_t *>(data.data() + i);
+    for (size_t i = 0; i < num; i++) {
+        id = *reinterpret_cast<const uint32_t *>(data.data() + 5 + 4 * i);
         ids.push_back(id);
     }
     return ids;

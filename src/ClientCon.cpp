@@ -8,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <cassert>
 #include "Client.h"
 #include "ClientCon.h"
 #include "ClientTrans.h"
@@ -62,7 +63,7 @@ void ClientCon::get_config() {
                "# change open with\n"
                "# eg: notepad %s\n"
                "# eg: Code.exe -g %s\n"
-               "open_with = notepad\n"
+               "open_with = notepad %s\n"
                "\n"
                "# change database filename\n"
                "# eg: note.db\n"
@@ -119,7 +120,7 @@ void add(){
     getline(std::cin,topic);
     std::string content;
     Editor editor;
-    editor.change_open_with(cconfig["open_with"]);
+    assert(editor.change_open_with(cconfig["open_with"]) && "打开方式格式错误");
     editor(topic, content);
     int id = ClientTrans::add(topic, content);
     auto &inst = Client::get_ins();
@@ -168,7 +169,7 @@ void update(){
             topic = get_res.first;
             content = get_res.second;
             Editor editor;
-            editor.change_open_with(cconfig["open_with"]);
+            assert(editor.change_open_with(cconfig["open_with"]) && "打开方式格式错误");
             editor(topic, content);
             ClientTrans::update(id, topic, content);
             res = inst.get();
@@ -221,10 +222,14 @@ void del(){
 void list(int type){
     //暂时先用服务器给的id
     auto m = ClientTrans::get_topic(ClientTrans::list(type));
+    if(m.empty()){
+        std::cout<<"不存在指定类型的笔记"<<std::endl;
+        return;
+    }
     std::map<uint32_t, std::string>::iterator it;
     auto &inst = Client::get_ins();
     std::string res = inst.get();
-    if(res.size()!=0){
+    if(!res.empty()){
         if (res[0] == 'e') {
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
@@ -240,11 +245,11 @@ void list(int type){
 }
 //search操作
 void search(){
-    std::cout<<"请输入要查找的笔记标题:";
+    std::cout<<"请输入要查找的笔记内容:";
     std::string topic;
     while(true){
         getline(std::cin,topic);
-        if(topic.size()==0){
+        if(topic.empty()){
             std::cout<<"查找内容不能为空,请重新输入:";
             continue;
         }else{
@@ -255,7 +260,7 @@ void search(){
     std::map<uint32_t, std::string>::iterator it;
     auto &inst = Client::get_ins();
     std::string res = inst.get();
-    if(res.size()!=0){
+    if(!res.empty()){
         if (res[0] == 'e') {
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
@@ -308,27 +313,27 @@ int ClientCon::operator()(int argc, char **argv) {
     std::cout<<"请输入命令:";
     std::string command;
     std::cin >> command;
-    while (command.compare("exit") != 0){
+    while (command != "exit"){
         getchar();
-        if(command.compare("help") == 0){
+        if(command == "help"){
             help();
-        }else if(command.compare("add") == 0){
+        }else if(command == "add"){
             add();
-        }else if(command.compare("update") == 0){
+        }else if(command == "update"){
             update();
-        }else if(command.compare("del") == 0){
+        }else if(command == "del"){
             del();
-        }else if(command.compare("search") == 0){
+        }else if(command == "search"){
             search();
-        }else if(command.compare("list") == 0){
+        }else if(command == "list"){
             list(0);
-        }else if(command.compare("list_del") == 0){
+        }else if(command == "list_del"){
             list(1);
-        }else if(command.compare("logout") == 0){
+        }else if(command == "logout"){
             // ClientTrans::logout();
-        }else if(command.compare("exit") == 0){
+        }else if(command == "exit"){
             break;
-        }else if(command.compare("help") == 0){
+        }else if(command == "help"){
             help();
         }else{
             std::cout<<"您输入的命令不存在"<<std::endl;

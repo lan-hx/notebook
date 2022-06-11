@@ -24,9 +24,10 @@ public:
     /**
      * 更改默认打开方式
      * @param open 打开方式
-     * @note 例："code %s" or "native"
+     * @return 是否成功
+     * @note 例："code %s"
      */
-    void change_open_with(const std::string &open) noexcept;
+    bool change_open_with(const std::string &open) noexcept;
 private:
     std::string open_with;
 };

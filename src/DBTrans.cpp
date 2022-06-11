@@ -98,10 +98,9 @@ std::map<uint32_t, std::string> DBTrans::get_topic(const vector<uint32_t> ids) {
     map<uint32_t, string> m;
     sqlite3 *db = DB::get_ins().db;
     sqlite3_stmt *stmt = nullptr;
-    string query = "select id, topic from notebook where id = ";
+    string query = "select id, topic from notebook where";
     for (auto &id : ids) {
-        query += to_string(id);
-        query += " or ";
+        query += " id = " + to_string(id) + " or";
     }
     query.pop_back();
     query.pop_back();
@@ -133,20 +132,26 @@ std::string DBTrans::translate(std::string data) {
     try {
         // not to use switch-case here intentionally
         if(ins == OP_GET) {
-            auto s = get(READ_UINT32(&data[1]));
-            string ret(5 + s.length(), RES_GET);
-            WRITE_UINT32(ret.data()+1) = s.length();
-            memcpy(ret.data()+5, s.data(), s.length());
+            const auto id = READ_UINT32(&data[1]);
+            auto s1 = get(id);
+            auto s2 = get_topic({id});
+            const auto &content = s2[id];
+            string ret(9 + s1.length() + content.length(), RES_GET);
+            WRITE_UINT32(ret.data()+1) = content.length();
+            memcpy(ret.data()+5, content.data(), content.length());
+            WRITE_UINT32(ret.data()+5+content.length()) = s1.length();
+            memcpy(ret.data()+9+content.length(), s1.data(), s1.length());
             return ret;
         }
         else if(ins == OP_GET_TOPIC) {
             uint32_t num = READ_UINT32(&data[1]);
+            string s(5, RES_GET_TOPIC);
+            WRITE_UINT32(&s[1]) = num;
+            if(num == 0) return s;
             vector<uint32_t> v;
             v.resize(num);
             memcpy(&v[0], &data[5], num*sizeof(uint32_t));
             auto m = get_topic(v);
-            string s(5, RES_GET_TOPIC);
-            WRITE_UINT32(&s[1]) = num;
             for(const auto &i:m) {
                 string tmp(i.second.length() + 2 * sizeof(uint32_t), 0);
                 WRITE_UINT32(&tmp[0]) = i.first;
@@ -185,6 +190,7 @@ std::string DBTrans::translate(std::string data) {
             string word = data.substr(5, len);
             auto v = search(word);
             string ret(5 + 4 * v.size(), RES_SEARCH);
+            WRITE_UINT32(ret.data()+1) = v.size();
             for(size_t i = 0; i < v.size(); i++) {
                 WRITE_UINT32(ret.data()+5+4*i) = v[i];
             }
@@ -194,6 +200,7 @@ std::string DBTrans::translate(std::string data) {
             uint32_t type = READ_UINT32(&data[1]);
             auto v = list(type);
             string ret(5 + 4 * v.size(), RES_LST);
+            WRITE_UINT32(ret.data()+1) = v.size();
             for(size_t i = 0; i < v.size(); i++) {
                 WRITE_UINT32(ret.data()+5+4*i) = v[i];
             }

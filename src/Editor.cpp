@@ -4,25 +4,34 @@
 
 #include "Editor.h"
 #include <fstream>
+#include <iostream>
 #include <string>
+#include <filesystem>
 #include <map>
+namespace fs = std::filesystem;
 
 // todo: not done
 Editor::State Editor::operator()(std::string &topic, std::string &content) noexcept {
-    std::ofstream ofs("note.txt");
+    std::string filename = tmpnam(nullptr);
+    filename += ".txt";
+    if(fs::exists(filename)) {
+        std::cerr << filename << "已被占用" << std::endl;
+        return error;
+    }
+    std::ofstream ofs(filename);
     ofs << topic << "\n" << content;
-    ofs << content;
     ofs.close();
-    std::string cmd = open_with + " note.txt";
+    std::string cmd = open_with.replace(open_with.find("%s"), 2, filename);
     if (system(cmd.c_str()) != 0) {
         return State::error;
     }
-    std::ifstream ifs("note.txt");
+    std::ifstream ifs(filename);
     if (!ifs) {
         return State::error;
     }
     std::string new_topic, new_content,temp;
     std::getline(ifs, new_topic);
+    getchar(); // 注意这里要把换行符去掉
     while (std::getline(ifs, temp)) {
         new_content += temp + "\n";
         if(ifs.eof()) {
@@ -35,11 +44,16 @@ Editor::State Editor::operator()(std::string &topic, std::string &content) noexc
     topic = new_topic;
     content = new_content;
     ifs.close();
-    system("del note.txt");
+    fs::remove(filename);
     return State::succeed;
 }
 
 // todo: not done
-void Editor::change_open_with(const std::string &open) noexcept {
+bool Editor::change_open_with(const std::string &open) noexcept {
+    if(open.find("%s") == std::string::npos) {
+        std::cerr << "打开方式格式错误" << std::endl;
+        return false;
+    }
     open_with = open;
+    return true;
 }

@@ -55,7 +55,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # disable exceptions and RTTI
     string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     string(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /nologo /fp:fast /GA /Gd /GL /GR- /GS /guard:cf /permissive- /sdl /Zc:__cplusplus /Zc:forScope /Zc:inline /Zc:rvalueCast /arch:AVX2 /std:c++latest /MP /experimental:module /source-charset:utf-8 /execution-charset:GBK")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /nologo /fp:fast /GA /Gd /GL /GR- /GS /guard:cf /permissive- /sdl /Zc:__cplusplus /Zc:forScope /Zc:inline /Zc:rvalueCast /arch:AVX2 /std:c++latest /MP /experimental:module /source-charset:utf-8 /execution-charset:GBK /D \"_CRT_SECURE_NO_WARNINGS\"")
     if(DEFINED SLOW)
         string(REGEX REPLACE "/GR-" "/GR" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")

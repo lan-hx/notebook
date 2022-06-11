@@ -28,7 +28,7 @@ TEST(Server, echo) {
     Client::set("localhost", 13579, "/");
     auto &cinst = Client::get_ins();
     ASSERT_TRUE(&cinst);
-    auto th = std::thread(sinst.start_server, &sinst, "0.0.0.0", 13579, echo_func, false);
+    auto th = std::thread(&Server::start_server, &sinst, "0.0.0.0", 13579, echo_func, false);
     cinst.send("Hello World!");
     string s;
     s = cinst.get();

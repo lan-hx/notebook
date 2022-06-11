@@ -98,9 +98,7 @@ void help(){
     std::cout << "更新笔记: update " << std::endl;
     std::cout << "删除笔记: del " << std::endl;
     std::cout << "查看所有笔记: list" << std::endl;
-    std::cout << "查看已删除的笔记: list_del" << std::endl;
     std::cout << "搜索笔记: search " << std::endl;
-    std::cout << "退出登录: logout" << std::endl;
     std::cout << "查看帮助信息: help" << std::endl;
     std::cout << "退出系统: exit" << std::endl;
     //to be continued
@@ -130,7 +128,7 @@ void add(){
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
             memcpy(err.data(), res.c_str()+6, err.size());
-            std::cout<<err<<std::endl;
+            std::cout << "添加失败: " << err << std::endl;
         } else {
             std::cout << "添加成功,笔记id为:" << id << std::endl;
         }
@@ -164,7 +162,7 @@ void update(){
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
             memcpy(err.data(), res.c_str()+6, err.size());
-            std::cout<<err<<std::endl;
+            std::cout<<"获取笔记失败:"<<err<<std::endl;
         } else {
             topic = get_res.first;
             content = get_res.second;
@@ -178,7 +176,7 @@ void update(){
                     std::string err;
                     err.resize(READ_UINT32(res.c_str()+2));
                     memcpy(err.data(), res.c_str()+6, err.size());
-                    std::cout<<err<<std::endl;
+                    std::cout<<"更新笔记失败:"<<err<<std::endl;
                 } else {
                     std::cout << "更新成功" << std::endl;
                 }
@@ -212,7 +210,7 @@ void del(){
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
             memcpy(err.data(), res.c_str()+6, err.size());
-            std::cout<<err<<std::endl;
+            std::cout<<"删除笔记失败:"<<err<<std::endl;
         } else {
             std::cout << "删除成功" << std::endl;
         }
@@ -234,7 +232,7 @@ void list(int type){
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
             memcpy(err.data(), res.c_str()+6, err.size());
-            std::cout<<err<<std::endl;
+            std::cout<<"获取笔记失败:"<<err<<std::endl;
         } else {
             std::cout<<"\t笔记id\t笔记标题"<<std::endl;
             for(it = m.begin(); it != m.end(); it++){
@@ -265,13 +263,17 @@ void search(){
             std::string err;
             err.resize(READ_UINT32(res.c_str()+2));
             memcpy(err.data(), res.c_str()+6, err.size());
-            std::cout<<err<<std::endl;
+            std::cout<<"获取笔记失败:"<<err<<std::endl;
         } else {
-            std::cout<<"查询结果如下:"<<std::endl;
-            std::cout<<"共查询到"<<m.size()<<"条笔记"<<std::endl;
-            std::cout<<"\t笔记id\t笔记标题"<<std::endl;
-            for(it = m.begin(); it != m.end(); it++){
-                std::cout<<"\t"<<it->first<<"\t"<<it->second<<std::endl;
+            if(m.empty()){
+                std::cout<<"没有查询到笔记"<<std::endl;
+            }else{
+                std::cout<<"查询结果如下:"<<std::endl;
+                std::cout<<"共查询到"<<m.size()<<"条笔记"<<std::endl;
+                std::cout<<"\t笔记id\t笔记标题"<<std::endl;
+                for(it = m.begin(); it != m.end(); it++){
+                    std::cout<<"\t"<<it->first<<"\t"<<it->second<<std::endl;
+                }
             }
         }
     }
@@ -306,8 +308,6 @@ int ClientCon::operator()(int argc, char **argv) {
     std::cout<<"del:删除笔记,"<<std::endl;
     std::cout<<"search:查找笔记"<<std::endl;
     std::cout<<"list:查看所有笔记"<<std::endl;
-    std::cout<<"list_del:查看已删除的笔记"<<std::endl;
-    std::cout<<"logout:退出登录"<<std::endl;
     std::cout<<"help:查看帮助信息"<<std::endl;
     std::cout<<"exit:退出系统"<<std::endl;
     std::cout<<"请输入命令:";
@@ -327,10 +327,6 @@ int ClientCon::operator()(int argc, char **argv) {
             search();
         }else if(command == "list"){
             list(0);
-        }else if(command == "list_del"){
-            list(1);
-        }else if(command == "logout"){
-            // ClientTrans::logout();
         }else if(command == "exit"){
             break;
         }else if(command == "help"){

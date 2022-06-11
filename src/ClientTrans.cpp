@@ -25,7 +25,9 @@ string _add_send(const std::string &topic, const std::string &content) {
 }
 
 uint32_t _add_recv(const string &data) {
-    ASSERT(data[0] == RES_ADD, "unexpected data from server");
+    if(data[0] != OP_ADD) {
+        return 0;
+    }
     return *reinterpret_cast<const uint32_t *>(data.data() + 1);
 }
 
@@ -51,7 +53,9 @@ string _update_send(uint32_t id, const std::string &topic, const std::string &co
     return str;
 }
 void _update_recv(const string &data) {
-    ASSERT(data[0] == RES_UPD, "unexpected data from server");
+    if(data[0] != OP_UPD) {
+        return;
+    }
 }
 //todo: not done
 void ClientTrans::update(uint32_t id, const std::string &topic, const std::string &content) {
@@ -70,7 +74,9 @@ string _del_send(uint32_t id) {
     return str;
 }
 void _del_recv(const string &data) {
-    ASSERT(data[0] == RES_DEL, "unexpected data from server");
+    if(data[0] != OP_DEL) {
+        return;
+    }
 }
 //todo: not done
 void ClientTrans::del(uint32_t id) {
@@ -91,7 +97,9 @@ string _search_send(const std::string &word) {
     return str;
 }
 vector<uint32_t> _search_recv(const string &data) {
-    ASSERT(data[0] == RES_SEARCH, "unexpected data from server");
+    if (data[0] != OP_SEARCH) {
+        return vector<uint32_t>();
+    }
     vector<uint32_t> ids;
     uint32_t num = *reinterpret_cast<const uint32_t *>(data.data()+1);
     uint32_t id = 0;
@@ -118,7 +126,9 @@ string _list_send (int type) {
     return str;
 }
 vector<uint32_t> _list_recv(const string &data) {
-    ASSERT(data[0] == RES_LST, "unexpected data from server");
+    if (data[0] != OP_LST) {
+        return vector<uint32_t>();
+    }
     vector<uint32_t> ids;
     uint32_t num = *reinterpret_cast<const uint32_t *>(data.data()+1);
     uint32_t id = 0;
@@ -144,7 +154,9 @@ string _get_send(uint32_t id) {
 }
 
 pair<string, string> _get_recv(const string &data) {
-    ASSERT(data[0] == RES_GET, "unexpected data from server");
+    if (data[0] != OP_GET) {
+        return pair<string, string>();
+    }
     auto topic_len = *reinterpret_cast<const unsigned *>(data.data() + 1);
     auto content_len = *reinterpret_cast<const unsigned *>(data.data() + 1 + 4 + topic_len);
     string topic(topic_len, 0), content(content_len, 0);
@@ -170,7 +182,9 @@ string _get_topic_send(const vector<uint32_t> ids) {
     return str;
 }
 map <uint32_t, string> _get_topic_recv(const string &data) {
-    ASSERT(data[0] == RES_GET_TOPIC, "unexpected data from server");
+    if (data[0] != OP_GET_TOPIC) {
+        return map <uint32_t, string>();
+    }
     map <uint32_t, string> topics;
     uint32_t id = 0;
     uint32_t topic_len = 0;
